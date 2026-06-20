@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerAI — Student Career Toolkit</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="modal-overlay" id="key-modal">
+  <div class="modal-box">
+    <div class="modal-icon">🔑</div>
+    <h2>Enter Your Groq API Key</h2>
+    <p>CareerAI uses Groq API to power all AI features. Get your free key in 2 minutes.</p>
+    <div class="modal-steps">
+      <div class="modal-step">
+        <span class="step-num">1</span>
+        <span>Go to <strong>console.groq.com</strong></span>
+      </div>
+      <div class="modal-step">
+        <span class="step-num">2</span>
+        <span>Sign up free with Google</span>
+      </div>
+      <div class="modal-step">
+        <span class="step-num">3</span>
+        <span>Click API Keys → Create API Key</span>
+      </div>
+      <div class="modal-step">
+        <span class="step-num">4</span>
+        <span>Paste it below and click Save</span>
+      </div>
+    </div>
+    <input type="text" id="key-input" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx" />
+    <button class="btn-primary btn-full" style="margin-top:12px;" onclick="saveKey()">Save & Get Started</button>
+    <p class="modal-note">Your key is stored only in your browser. We never see or store it.</p>
+  </div>
+</div>
+
+<nav class="sidebar-nav">
+  <div class="logo">
+    <div class="logo-icon">🎓</div>
+    <div>
+      <div class="logo-text">CareerAI</div>
+      <div class="logo-sub">Student Toolkit</div>
+    </div>
+  </div>
+
+  <div class="nav-section">Tools</div>
+  <button class="nav-item active" onclick="showPage('resume', this)">
+    <span class="icon">📄</span> Resume Optimizer
+  </button>
+  <button class="nav-item" onclick="showPage('interview', this)">
+    <span class="icon">🎯</span> Mock Interview
+  </button>
+  <button class="nav-item" onclick="showPage('cover', this)">
+    <span class="icon">✉️</span> Cover Letter
+  </button>
+  <button class="nav-item" onclick="showPage('linkedin', this)">
+    <span class="icon">🔗</span> LinkedIn Bio
+  </button>
+  <button class="nav-item" onclick="showPage('skills', this)">
+    <span class="icon">📊</span> Skills Gap
+  </button>
+
+  <div class="nav-footer">
+    <p><strong>Built by Mary Ebisa</strong><br>Powered by Groq API and LLaMA 3</p>
+    <button onclick="changeKey()" style="margin-top:8px; font-size:11px; background:none; border:1px solid var(--border); border-radius:4px; padding:4px 8px; cursor:pointer; color:var(--text3); width:100%;">Change API Key</button>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div class="page active" id="page-resume">
+    <div class="page-header">
+      <h1>Resume Optimizer</h1>
+      <p>Paste your resume and a job description to get an ATS score, missing keywords, and exactly what to fix.</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-label">Your Resume</div>
+        <textarea id="resume" placeholder="Paste your full resume text here..."></textarea>
+      </div>
+      <div class="card">
+        <div class="card-label">Job Description</div>
+        <textarea id="jobdesc" placeholder="Paste the job description here..."></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-primary btn-full" onclick="analyzeResume()">Analyze Resume</button>
+      <button class="btn-primary btn-full" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);" onclick="resetResume()">Reset</button>
+    </div>
+    <div class="loading-bar hidden" id="resume-loading">
+      <div class="spinner"></div> Analyzing with AI, this takes about 10 seconds...
+    </div>
+    <div class="hidden" id="resume-results" style="margin-top:20px;">
+      <div class="score-grid">
+        <div class="score-card" id="score-card-ats">
+          <div class="score-num" id="ats-score">—</div>
+          <div class="score-lbl">ATS Score / 100</div>
+        </div>
+        <div class="score-card" id="score-card-match">
+          <div class="score-num" id="match-level">—</div>
+          <div class="score-lbl">Match Level</div>
+        </div>
+        <div class="score-card">
+          <div class="score-num" id="missing-count">—</div>
+          <div class="score-lbl">Areas to Improve</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Detailed Analysis <button class="copy-btn" onclick="copyText('resume-feedback')">Copy</button></div>
+        <div class="result-box" id="resume-feedback"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="page" id="page-interview">
+    <div class="page-header">
+      <h1>Mock Interview</h1>
+      <p>Pick a role, answer 5 real interview questions, and get AI feedback with a score for each answer.</p>
+    </div>
+    <div class="interview-wrap">
+      <div>
+        <div class="card-label" style="padding: 0 0 8px;">Role</div>
+        <div class="role-list">
+          <button class="role-btn active" onclick="selectRole(this,'AI Engineer')">🤖 AI Engineer</button>
+          <button class="role-btn" onclick="selectRole(this,'Data Scientist')">📊 Data Scientist</button>
+          <button class="role-btn" onclick="selectRole(this,'ML Engineer')">⚙️ ML Engineer</button>
+          <button class="role-btn" onclick="selectRole(this,'Frontend Developer')">🌐 Frontend Dev</button>
+          <button class="role-btn" onclick="selectRole(this,'Python Developer')">🐍 Python Dev</button>
+        </div>
+        <hr class="divider">
+        <div class="card-label">Score</div>
+        <div style="font-size:26px; font-weight:600; color:var(--accent); font-family:'DM Sans',sans-serif;" id="total-score">
+          0<span style="font-size:14px;color:var(--text3);">/50</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="score-label">Not started</div>
+        <hr class="divider">
+        <div class="card-label">Progress</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;" id="q-progress">0 of 5 questions</div>
+        <div class="skill-bar-track">
+          <div class="skill-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="chat-wrap">
+        <div class="chat-top">
+          <div class="chat-top-left">
+            <div class="bot-dot"></div>
+            <div>
+              <h3>AI Interviewer</h3>
+              <p id="role-label">AI Engineer</p>
+            </div>
+          </div>
+          <div class="progress-pill" id="q-pill">Ready to start</div>
+        </div>
+        <div class="chat-msgs" id="chat-msgs">
+          <div class="start-empty" id="start-screen">
+            <div class="emoji">🎯</div>
+            <h3>Ready for your interview?</h3>
+            <p>Select a role and click Start to begin your AI-powered mock session.</p>
+            <button class="btn-primary" style="margin-top:8px;" onclick="startInterview()">Start Interview</button>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="answer-input" placeholder="Type your answer..." disabled onkeypress="if(event.key==='Enter')submitAnswer()"/>
+          <button class="btn-primary" id="submit-btn" onclick="submitAnswer()" disabled>Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-cover">
+    <div class="page-header">
+      <h1>Cover Letter Generator</h1>
+      <p>Fill in your details and get a professional personalised cover letter ready to send.</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-label">Your Name</div>
+        <input type="text" id="cv-name" placeholder="e.g. Mary Ebisa" />
+      </div>
+      <div class="card">
+        <div class="card-label">Role Applying For</div>
+        <input type="text" id="cv-role" placeholder="e.g. AI Engineer Intern" />
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Company Name</div>
+      <input type="text" id="cv-company" placeholder="e.g. Zoho Corporation" />
+    </div>
+    <div class="card">
+      <div class="card-label">Your Key Skills and Experience</div>
+      <textarea id="cv-skills" placeholder="e.g. B.Tech AI and Data Science student, Python, ML, 6 month frontend internship at JCS Infotech..."></textarea>
+    </div>
+    <div class="card">
+      <div class="card-label">Job Description (optional)</div>
+      <textarea id="cv-jd" placeholder="Paste the job description here for a more tailored letter..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-primary btn-full" onclick="generateCover()">Generate Cover Letter</button>
+      <button class="btn-primary btn-full" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);" onclick="resetCover()">Reset</button>
+    </div>
+    <div class="loading-bar hidden" id="cover-loading">
+      <div class="spinner"></div> Writing your cover letter...
+    </div>
+    <div class="card hidden" id="cover-result" style="margin-top:20px;">
+      <div class="card-label">Your Cover Letter <button class="copy-btn" onclick="copyText('cover-output')">Copy</button></div>
+      <div class="result-box" id="cover-output"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-linkedin">
+    <div class="page-header">
+      <h1>LinkedIn Bio Generator</h1>
+      <p>Answer a few questions and get a LinkedIn About section that gets you noticed by recruiters.</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-label">Your Name</div>
+        <input type="text" id="li-name" placeholder="e.g. Mary Ebisa" />
+      </div>
+      <div class="card">
+        <div class="card-label">Target Role</div>
+        <input type="text" id="li-role" placeholder="e.g. AI Engineer" />
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Degree and College</div>
+      <input type="text" id="li-edu" placeholder="e.g. B.Tech AI and Data Science, Rohini College of Engineering" />
+    </div>
+    <div class="card">
+      <div class="card-label">Skills and Tech Stack</div>
+      <input type="text" id="li-skills" placeholder="e.g. Python, Machine Learning, NumPy, Pandas, HTML, CSS, JavaScript" />
+    </div>
+    <div class="card">
+      <div class="card-label">Experience and Projects</div>
+      <textarea id="li-exp" placeholder="e.g. 6 month internship at JCS Infotech as Frontend Developer. Built AI Resume Optimizer using Python and Groq API." style="height:100px;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-primary btn-full" onclick="generateLinkedIn()">Generate LinkedIn Bio</button>
+      <button class="btn-primary btn-full" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);" onclick="resetLinkedIn()">Reset</button>
+    </div>
+    <div class="loading-bar hidden" id="li-loading">
+      <div class="spinner"></div> Crafting your LinkedIn bio...
+    </div>
+    <div class="hidden" id="li-results" style="margin-top:20px;">
+      <div class="card">
+        <div class="card-label">Headline <button class="copy-btn" onclick="copyText('li-headline')">Copy</button></div>
+        <div class="result-box" id="li-headline"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">About Section <button class="copy-btn" onclick="copyText('li-about')">Copy</button></div>
+        <div class="result-box" id="li-about"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-skills">
+    <div class="page-header">
+      <h1>Skills Gap Analyzer</h1>
+      <p>See exactly which skills you are missing for your target role and what to learn next.</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-label">Your Current Skills</div>
+        <textarea id="sg-skills" placeholder="e.g. Python, HTML, CSS, JavaScript, Git, SQL basics, KNN, basic ML theory..."></textarea>
+      </div>
+      <div class="card">
+        <div class="card-label">Target Role</div>
+        <input type="text" id="sg-role" placeholder="e.g. AI Engineer at a product company" style="margin-bottom:12px;" />
+        <div class="card-label">Experience Level</div>
+        <select id="sg-level">
+          <option value="fresher">Fresher / Student</option>
+          <option value="junior">Junior (0-2 years)</option>
+          <option value="mid">Mid level (2-4 years)</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-primary btn-full" onclick="analyzeSkills()">Analyze My Skills</button>
+      <button class="btn-primary btn-full" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);" onclick="resetSkills()">Reset</button>
+    </div>
+    <div class="loading-bar hidden" id="skills-loading">
+      <div class="spinner"></div> Analyzing your skills gap...
+    </div>
+    <div class="hidden" id="skills-results" style="margin-top:20px;">
+      <div class="grid2">
+        <div class="card">
+          <div class="card-label">Skills You Have</div>
+          <div id="skills-have"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Skills You Are Missing</div>
+          <div id="skills-missing"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Learning Roadmap <button class="copy-btn" onclick="copyText('skills-roadmap')">Copy</button></div>
+        <div class="result-box" id="skills-roadmap"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
