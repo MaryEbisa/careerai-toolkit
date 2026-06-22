@@ -15,7 +15,7 @@ function showKeyModal() {
 
 function saveKey() {
   const key = document.getElementById('key-input').value.trim();
-  if (!key || !key.startsWith('gsk_')) {
+if (!key) {
     alert('Please enter a valid Groq API key. It should start with gsk_');
     return;
   }
